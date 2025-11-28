@@ -1,10 +1,28 @@
-# Python virtual environments
-python-preprocess/.venv/
-python-preprocess/.venv/*
+# Byte-compiled / built files
+__pycache__/
+*.py[cod]
+*$py.class
 
 # Virtual environments
 **/.venv/
-**/.venv/*
+**/venv/
+venv/
+.env/
 
-# PyCharm
+# IDE / Editor folders
 .idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Build / output folders (عموماً برای Delphi / .NET)
+bin/
+obj/
+*.exe
+*.dll
+*.pdb
+*.log
