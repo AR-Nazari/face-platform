@@ -1,9 +1,0 @@
-opencv-python
-pillow
-numpy
-pydantic
-requests
-pika
-
-
-# برای RabbitMQ
