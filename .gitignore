@@ -1,0 +1,5 @@
+# Python virtual environments
+python-preprocess/.venv/
+python-preprocess/.venv/*
+**/.venv/
+**/.venv/*
