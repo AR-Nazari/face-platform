@@ -1,0 +1,89 @@
+@page "/login"
+
+@using Face.Demo.Web.Auth
+@inject AuthService AuthService
+@inject JwtAuthStateProvider AuthStateProvider
+@inject NavigationManager Navigation
+
+<MudGrid Justify="Justify.Center" AlignItems="AlignItems.Center" Style="min-height: 100vh;">
+    <MudItem xs="12" sm="8" md="5" lg="4">
+        <MudPaper Class="pa-6" Elevation="8" Rounded="true">
+            <MudStack Spacing="2">
+                <MudText Typo="Typo.h5" Class="mb-2" Align="Align.Center">
+                    ورود به سامانه دمو Face Platform
+                </MudText>
+
+                <MudText Typo="Typo.body2" Class="mb-4" Align="Align.Center">
+                    لطفاً نام کاربری و کلمه عبور خود را وارد کنید.
+                </MudText>
+
+                <MudTextField @bind-Value="_userName"
+                              Label="نام کاربری"
+                              Variant="Variant.Outlined"
+                              Adornment="Adornment.Start"
+                              AdornmentIcon="@Icons.Material.Filled.Person"
+                              FullWidth="true" />
+
+                <MudTextField @bind-Value="_password"
+                              Label="کلمه عبور"
+                              Variant="Variant.Outlined"
+                              Adornment="Adornment.Start"
+                              AdornmentIcon="@Icons.Material.Filled.Lock"
+                              InputType="InputType.Password"
+                              FullWidth="true" />
+
+                @if (!string.IsNullOrWhiteSpace(_errorMessage))
+                {
+                    <MudAlert Severity="Severity.Error" Dense="true" Class="mt-2">
+                        @_errorMessage
+                    </MudAlert>
+                }
+
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           OnClick="HandleLoginAsync"
+                           Disabled="_isBusy"
+                           FullWidth="true"
+                           Class="mt-4">
+                    @(_isBusy ? "در حال ورود..." : "ورود")
+                </MudButton>
+
+                <MudText Typo="Typo.caption" Align="Align.Center" Class="mt-2">
+                    پیش‌فرض: نام کاربری <b>admin</b> و کلمه عبور <b>admin</b>
+                </MudText>
+            </MudStack>
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+
+@code {
+    private string _userName = "admin";
+    private string _password = "admin";
+    private string _errorMessage = string.Empty;
+    private bool _isBusy = false;
+
+    private async Task HandleLoginAsync()
+    {
+        _errorMessage = string.Empty;
+        _isBusy = true;
+
+        try
+        {
+            var result = await AuthService.LoginAsync(_userName, _password);
+            if (result is null || string.IsNullOrWhiteSpace(result.Token))
+            {
+                _errorMessage = "نام کاربری یا کلمه عبور نادرست است.";
+                return;
+            }
+
+            AuthStateProvider.SetUser(result.UserName, result.Role);
+
+            // بعد از ورود موفق، به صفحه اصلی هدایت می‌کنیم
+            Navigation.NavigateTo("/");
+        }
+        finally
+        {
+            _isBusy = false;
+        }
+    }
+}

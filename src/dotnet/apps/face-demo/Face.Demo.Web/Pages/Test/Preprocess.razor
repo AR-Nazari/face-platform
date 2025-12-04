@@ -1,0 +1,94 @@
+@page "/test/preprocess"
+@inject FaceApiClient ApiClient
+
+<MudText Typo="Typo.h5" Class="mb-2">تست سرویس Frame Preprocess</MudText>
+
+<MudPaper Class="pa-4 mb-4">
+    <MudText Class="mb-2">
+        یک تصویر را به صورت Base64 وارد کنید و دکمه ارسال را بزنید. سرویس دات‌نت، درخواست را به سرویس پایتون <code>frame-preprocess</code> ارسال می‌کند.
+    </MudText>
+
+    <MudTextField @bind-Value="_imageBase64"
+                  Label="Image Base64"
+                  Lines="6"
+                  FullWidth="true"
+                  Placeholder="data:image/png;base64,... یا فقط رشته Base64" />
+
+    <MudCheckBox @bind-Checked="_returnDebug" Label="برگشت اطلاعات Debug" Class="mt-2" />
+
+    <MudButton Variant="Variant.Filled"
+               Color="Color.Primary"
+               Class="mt-4"
+               OnClick="SendAsync"
+               Disabled="_isBusy">
+        @(_isBusy ? "در حال ارسال..." : "ارسال به سرویس")
+    </MudButton>
+</MudPaper>
+
+@if (!string.IsNullOrWhiteSpace(_resultJson))
+{
+    <MudPaper Class="pa-4">
+        <MudText Typo="Typo.subtitle1" Class="mb-2">نتیجه:</MudText>
+        <pre style="white-space: pre-wrap; direction: ltr;">@_resultJson</pre>
+    </MudPaper>
+}
+
+@code {
+    private string _imageBase64 = string.Empty;
+    private bool _returnDebug = true;
+    private bool _isBusy = false;
+    private string _resultJson = string.Empty;
+
+    private async Task SendAsync()
+    {
+        _resultJson = string.Empty;
+
+        if (string.IsNullOrWhiteSpace(_imageBase64))
+        {
+            _resultJson = "خطا: رشته Base64 تصویر خالی است.";
+            return;
+        }
+
+        _isBusy = true;
+
+        try
+        {
+            var request = new FramePreprocessRequest
+            {
+                FrameId = Guid.NewGuid().ToString(),
+                Source = "demo-ui",
+                TimestampUtc = DateTime.UtcNow,
+                ImageBase64 = _imageBase64,
+                Options = new FramePreprocessOptions
+                {
+                    TargetWidth = 640,
+                    TargetHeight = 640,
+                    Normalize = true,
+                    ReturnDebug = _returnDebug
+                },
+                Meta = new FramePreprocessMeta
+                {
+                    CameraId = "DEMO-CAM-01",
+                    Location = "Demo UI"
+                }
+            };
+
+            var response = await ApiClient.PreprocessAsync(request);
+
+            _resultJson = System.Text.Json.JsonSerializer.Serialize(
+                response,
+                new System.Text.Json.JsonSerializerOptions
+                {
+                    WriteIndented = true
+                });
+        }
+        catch (Exception ex)
+        {
+            _resultJson = $"Exception: {ex.Message}";
+        }
+        finally
+        {
+            _isBusy = false;
+        }
+    }
+}

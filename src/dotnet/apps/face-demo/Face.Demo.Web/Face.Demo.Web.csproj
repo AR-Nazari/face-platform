@@ -4,11 +4,15 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <RazorLangVersion>8.0</RazorLangVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Face.Contracts\Face.Contracts.csproj" />
-    <ProjectReference Include="..\Face.Application\Face.Application.csproj" />
+    <PackageReference Include="MudBlazor" Version="6.19.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\backend\Face.Contracts\Face.Contracts.csproj" />
   </ItemGroup>
 
 </Project>

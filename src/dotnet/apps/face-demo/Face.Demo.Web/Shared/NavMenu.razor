@@ -1,0 +1,33 @@
+@using Face.Demo.Web.Auth
+@inject JwtAuthStateProvider AuthStateProvider
+@inject NavigationManager Navigation
+@inject AuthService AuthService
+
+<MudNavMenu>
+    <MudNavLink Href="" Match="NavLinkMatch.All">
+        <MudIcon Icon="@Icons.Material.Filled.Home" />
+        <span class="ms-2">داشبورد</span>
+    </MudNavLink>
+
+    <MudNavLink Href="test/preprocess">
+        <MudIcon Icon="@Icons.Material.Filled.ImageSearch" />
+        <span class="ms-2">تست Preprocess</span>
+    </MudNavLink>
+
+    <MudNavLink Href="test/monitoring">
+        <MudIcon Icon="@Icons.Material.Filled.MonitorHeart" />
+        <span class="ms-2">تست و مانیتورینگ</span>
+    </MudNavLink>
+
+    <MudNavLink Href="admin/persons">
+        <MudIcon Icon="@Icons.Material.Filled.People" />
+        <span class="ms-2">مدیریت افراد (آینده)</span>
+    </MudNavLink>
+
+    <MudSpacer />
+
+    <MudNavLink Href="login">
+        <MudIcon Icon="@Icons.Material.Filled.Login" />
+        <span class="ms-2">خروج / ورود</span>
+    </MudNavLink>
+</MudNavMenu>

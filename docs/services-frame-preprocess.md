@@ -6,4 +6,4 @@ Python FastAPI microservice responsible for:
 - Optional normalization.
 - Returning processed image and basic debug info.
 
-HTTP contract lives in: `src/backend/Face.Contracts/FramePreprocess.HttpContract.md`
+HTTP contract lives in: `src/dotnet/backend/Face.Contracts/FramePreprocess.HttpContract.md`

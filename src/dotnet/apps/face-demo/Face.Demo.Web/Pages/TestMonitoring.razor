@@ -1,0 +1,280 @@
+@page "/test/monitoring"
+@attribute [Authorize(Roles = "Admin")]
+
+@inject FaceApiClient ApiClient
+
+<MudGrid Class="mt-4" Spacing="3">
+
+    <!-- RabbitMQ Status -->
+    <MudItem xs="12" md="6">
+        <MudPaper Class="pa-4" Elevation="4">
+            <MudStack Spacing="2">
+                <MudText Typo="Typo.h6">وضعیت RabbitMQ</MudText>
+
+                @if (_isLoadingRabbit)
+                {
+                    <MudProgressCircular Indeterminate="true" />
+                }
+                else if (!string.IsNullOrWhiteSpace(_rabbitError))
+                {
+                    <MudAlert Severity="Severity.Error">
+                        @_rabbitError
+                    </MudAlert>
+                }
+                else if (_status is not null)
+                {
+                    <MudText Typo="Typo.subtitle2">صف‌ها</MudText>
+                    <MudTable Items="_status.Queues" Dense="true" Hover="true">
+                        <HeaderContent>
+                            <MudTh>نام</MudTh>
+                            <MudTh>پیام‌ها</MudTh>
+                            <MudTh>آماده</MudTh>
+                            <MudTh>در حال پردازش</MudTh>
+                            <MudTh>مصرف‌کنندگان</MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            <MudTd DataLabel="نام">@context.Name</MudTd>
+                            <MudTd DataLabel="پیام‌ها">@context.Messages</MudTd>
+                            <MudTd DataLabel="آماده">@context.MessagesReady</MudTd>
+                            <MudTd DataLabel="در حال پردازش">@context.MessagesUnacknowledged</MudTd>
+                            <MudTd DataLabel="مصرف‌کنندگان">@context.Consumers</MudTd>
+                        </RowTemplate>
+                    </MudTable>
+
+                    <MudDivider Class="my-2" />
+
+                    <MudText Typo="Typo.subtitle2">اتصالات</MudText>
+                    <MudTable Items="_status.Connections" Dense="true" Hover="true">
+                        <HeaderContent>
+                            <MudTh>نام</MudTh>
+                            <MudTh>آدرس</MudTh>
+                            <MudTh>کلاینت</MudTh>
+                            <MudTh>زمان اتصال</MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            <MudTd DataLabel="نام">@context.Name</MudTd>
+                            <MudTd DataLabel="آدرس">@context.PeerAddress</MudTd>
+                            <MudTd DataLabel="کلاینت">@context.ClientName</MudTd>
+                            <MudTd DataLabel="زمان اتصال">@context.ConnectedAtUtc</MudTd>
+                        </RowTemplate>
+                    </MudTable>
+                }
+                else
+                {
+                    <MudAlert Severity="Severity.Info">
+                        هیچ اطلاعاتی از RabbitMQ دریافت نشد.
+                    </MudAlert>
+                }
+
+                <MudButton Variant="Variant.Outlined"
+                           Color="Color.Primary"
+                           OnClick="ReloadRabbitAsync"
+                           Class="mt-2"
+                           Disabled="_isLoadingRabbit">
+                    بروزرسانی
+                </MudButton>
+            </MudStack>
+        </MudPaper>
+    </MudItem>
+
+    <!-- Tests -->
+    <MudItem xs="12" md="6">
+        <MudPaper Class="pa-4" Elevation="4">
+            <MudStack Spacing="3">
+
+                <MudText Typo="Typo.h6">تست Pipeline تصویر</MudText>
+
+                <!-- Image Normalize -->
+                <MudPaper Class="pa-3" Elevation="1">
+                    <MudStack Spacing="1">
+                        <MudText Typo="Typo.subtitle2">تست Image Normalize (Python)</MudText>
+                        <MudText Typo="Typo.caption">
+                            تصویر ورودی به فرم jpg و حداکثر 1920x1080 تبدیل می‌شود.
+                            اگر تصویری ارسال نشود، از تصویر پیش‌فرض استفاده می‌شود.
+                        </MudText>
+
+                        @if (_normalizeResult is not null)
+                        {
+                            <MudAlert Severity="@(_normalizeResult.Success ? Severity.Success : Severity.Warning)">
+                                @_normalizeResult.Message
+                                <br />
+                                ابعاد اولیه: @_normalizeResult.OriginalWidth x @_normalizeResult.OriginalHeight
+                                <br />
+                                ابعاد جدید: @_normalizeResult.NewWidth x @_normalizeResult.NewHeight
+                                <br />
+                                زمان پردازش: @_normalizeResult.DurationMs ms
+                            </MudAlert>
+                        }
+
+                        <MudButton Variant="Variant.Filled"
+                                   Color="Color.Primary"
+                                   OnClick="RunImageNormalizeAsync"
+                                   Disabled="_isRunningNormalize">
+                            @(_isRunningNormalize ? "در حال تست..." : "اجرای تست Image Normalize")
+                        </MudButton>
+                    </MudStack>
+                </MudPaper>
+
+                <!-- Face Detect Python -->
+                <MudPaper Class="pa-3" Elevation="1">
+                    <MudStack Spacing="1">
+                        <MudText Typo="Typo.subtitle2">تست Face Detect (Python)</MudText>
+
+                        @if (_faceDetectPythonResult is not null)
+                        {
+                            <MudAlert Severity="@(_faceDetectPythonResult.Success ? Severity.Success : Severity.Warning)">
+                                @_faceDetectPythonResult.Message
+                                <br />
+                                تعداد چهره‌ها: @_faceDetectPythonResult.FacesCount
+                                <br />
+                                زمان پردازش: @_faceDetectPythonResult.DurationMs ms
+                            </MudAlert>
+                        }
+
+                        <MudButton Variant="Variant.Filled"
+                                   Color="Color.Secondary"
+                                   OnClick="RunFaceDetectPythonAsync"
+                                   Disabled="_isRunningFacePython">
+                            @(_isRunningFacePython ? "در حال تست..." : "اجرای تست Face Detect (Python)")
+                        </MudButton>
+                    </MudStack>
+                </MudPaper>
+
+                <!-- Face Detect Delphi -->
+                <MudPaper Class="pa-3" Elevation="1">
+                    <MudStack Spacing="1">
+                        <MudText Typo="Typo.subtitle2">تست Face Detect (Delphi)</MudText>
+
+                        @if (_faceDetectDelphiResult is not null)
+                        {
+                            <MudAlert Severity="@(_faceDetectDelphiResult.Success ? Severity.Success : Severity.Warning)">
+                                @_faceDetectDelphiResult.Message
+                                <br />
+                                تعداد چهره‌ها: @_faceDetectDelphiResult.FacesCount
+                                <br />
+                                زمان پردازش: @_faceDetectDelphiResult.DurationMs ms
+                            </MudAlert>
+                        }
+
+                        <MudButton Variant="Variant.Filled"
+                                   Color="Color.Info"
+                                   OnClick="RunFaceDetectDelphiAsync"
+                                   Disabled="_isRunningFaceDelphi">
+                            @(_isRunningFaceDelphi ? "در حال تست..." : "اجرای تست Face Detect (Delphi)")
+                        </MudButton>
+                    </MudStack>
+                </MudPaper>
+
+            </MudStack>
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+
+@code {
+    private bool _isLoadingRabbit = true;
+    private string? _rabbitError;
+    private RabbitMqStatusVm? _status;
+
+    private bool _isRunningNormalize;
+    private bool _isRunningFacePython;
+    private bool _isRunningFaceDelphi;
+
+    private ImageNormalizeTestResponse? _normalizeResult;
+    private FaceDetectTestResponse? _faceDetectPythonResult;
+    private FaceDetectTestResponse? _faceDetectDelphiResult;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await ReloadRabbitAsync();
+    }
+
+    private async Task ReloadRabbitAsync()
+    {
+        _isLoadingRabbit = true;
+        _rabbitError = null;
+
+        try
+        {
+            var status = await ApiClient.GetRabbitMqStatusAsync();
+            _status = status;
+        }
+        catch (Exception ex)
+        {
+            _rabbitError = $"خطا در دریافت وضعیت RabbitMQ: {ex.Message}";
+        }
+        finally
+        {
+            _isLoadingRabbit = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task RunImageNormalizeAsync()
+    {
+        _isRunningNormalize = true;
+
+        try
+        {
+            _normalizeResult = await ApiClient.TestImageNormalizeAsync();
+        }
+        catch (Exception ex)
+        {
+            _normalizeResult = new ImageNormalizeTestResponse
+            {
+                Success = false,
+                Message = $"خطا در اجرای تست Image Normalize: {ex.Message}"
+            };
+        }
+        finally
+        {
+            _isRunningNormalize = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task RunFaceDetectPythonAsync()
+    {
+        _isRunningFacePython = true;
+
+        try
+        {
+            _faceDetectPythonResult = await ApiClient.TestFaceDetectPythonAsync();
+        }
+        catch (Exception ex)
+        {
+            _faceDetectPythonResult = new FaceDetectTestResponse
+            {
+                Success = false,
+                Message = $"خطا در اجرای تست Face Detect (Python): {ex.Message}"
+            };
+        }
+        finally
+        {
+            _isRunningFacePython = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task RunFaceDetectDelphiAsync()
+    {
+        _isRunningFaceDelphi = true;
+
+        try
+        {
+            _faceDetectDelphiResult = await ApiClient.TestFaceDetectDelphiAsync();
+        }
+        catch (Exception ex)
+        {
+            _faceDetectDelphiResult = new FaceDetectTestResponse
+            {
+                Success = false,
+                Message = $"خطا در اجرای تست Face Detect (Delphi): {ex.Message}"
+            };
+        }
+        finally
+        {
+            _isRunningFaceDelphi = false;
+            StateHasChanged();
+        }
+    }
+}

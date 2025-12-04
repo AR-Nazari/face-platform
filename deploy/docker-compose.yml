@@ -6,7 +6,7 @@ services:
     container_name: face-api
     working_dir: /app
     volumes:
-      - ../src/backend/Face.Api:/app
+      - ../src/dotnet/backend/Face.Api:/app
     command: ["dotnet", "Face.Api.dll"]
     ports:
       - "8000:8080"
