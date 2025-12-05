@@ -54,3 +54,9 @@ System.InvalidOperationException: The entity type 'DomainEvent' requires a prima
    at MediatR.Pipeline.RequestPreProcessorBehavior`2.Handle(TRequest request, RequestHandlerDelegate`1 next, CancellationToken cancellationToken)
    at Face.Api.Controllers.AuthController.Login(LoginRequestDto request, CancellationToken cancellationToken) in D:\Programming\Face\face-platform\src\dotnet\backend\Face.Api\Controllers\AuthController.cs:line 47
 2025-12-05 22:02:10.974 +03:30 [ERR] HTTP POST /api/v1/auth/login responded 500 in 1157.7430 ms
+2025-12-05 23:57:23.824 +03:30 [INF] Now listening on: https://localhost:13051
+2025-12-05 23:57:23.851 +03:30 [INF] Now listening on: http://localhost:13053
+2025-12-05 23:57:23.854 +03:30 [INF] Application started. Press Ctrl+C to shut down.
+2025-12-05 23:57:23.855 +03:30 [INF] Hosting environment: Development
+2025-12-05 23:57:23.857 +03:30 [INF] Content root path: D:\Programming\Face\face-platform\src\dotnet\backend\Face.Api
+2025-12-05 23:57:34.020 +03:30 [INF] Application is shutting down...

@@ -14,8 +14,9 @@ namespace Face.Infrastructure.Persistence
     {
         private readonly IMediator _mediator;
 
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IMediator mediator)
-            : base(options)
+        public ApplicationDbContext(
+            DbContextOptions<ApplicationDbContext> options,
+            IMediator mediator) : base(options)
         {
             _mediator = mediator;
         }
@@ -27,6 +28,10 @@ namespace Face.Infrastructure.Persistence
         {
             base.OnModelCreating(builder);
 
+            // Make sure EF Core completely ignores domain events
+            builder.Ignore<DomainEvent>();
+            builder.Ignore<IDomainEvent>();
+
             builder.Entity<Frame>(b =>
             {
                 b.HasKey(f => f.Id);
@@ -34,17 +39,17 @@ namespace Face.Infrastructure.Persistence
                 b.OwnsOne(f => f.FrameId, fb =>
                 {
                     fb.Property(p => p.Value)
-                      .HasColumnName("FrameId")
-                      .IsRequired()
-                      .HasMaxLength(128);
+                        .HasColumnName("FrameId")
+                        .IsRequired()
+                        .HasMaxLength(128);
                 });
 
                 b.Property(f => f.TimestampUtc)
-                 .IsRequired();
+                    .IsRequired();
 
                 b.Property(f => f.Source)
-                 .IsRequired()
-                 .HasMaxLength(64);
+                    .IsRequired()
+                    .HasMaxLength(64);
             });
 
             builder.Entity<User>(b =>
@@ -71,26 +76,27 @@ namespace Face.Infrastructure.Persistence
                     {
                         Id = 1,
                         UserName = "admin",
-                        PasswordHash = "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918",
+                        PasswordHash =
+                            "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918",
                         Role = "Admin"
                     },
                     new User
                     {
                         Id = 2,
                         UserName = "user",
-                        PasswordHash = "04f8996da763b7a969b1028ee3007569eaf3a635486ddab211d512c85b9df8fb",
+                        PasswordHash =
+                            "04f8996da763b7a969b1028ee3007569eaf3a635486ddab211d512c85b9df8fb",
                         Role = "User"
                     }
                 );
             });
         }
 
-        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        public override async Task<int> SaveChangesAsync(
+            CancellationToken cancellationToken = default)
         {
             var result = await base.SaveChangesAsync(cancellationToken);
-
             await DispatchDomainEventsAsync(cancellationToken);
-
             return result;
         }
 
