@@ -1,9 +1,10 @@
-using System.Text;
+﻿using System.Text;
 using Face.Application;
 using Face.Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
+using Face.Api; // برای SwaggerConfig
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,7 +24,9 @@ builder.Services.AddInfrastructure(builder.Configuration);
 // Controllers + Swagger
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+//builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerWithJwt();
+
 
 builder.Services.AddAuthentication(options =>
 {
@@ -53,8 +56,9 @@ var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    //app.UseSwagger();
+    //app.UseSwaggerUI();
+    app.UseSwaggerWithUi();
 }
 
 app.UseSerilogRequestLogging();

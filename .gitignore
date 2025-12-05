@@ -27,6 +27,9 @@ desktop.ini
 #############
 # .NET build
 #############
+log/
+logs/
+Logs/
 bin/
 obj/
 Debug/
