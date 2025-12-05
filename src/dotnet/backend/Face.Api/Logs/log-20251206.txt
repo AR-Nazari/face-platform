@@ -1,15 +1,7 @@
-2025-12-06 00:00:36.331 +03:30 [INF] HTTP GET /api/v1/diagnostics/rabbitmq/status responded 401 in 10.1347 ms
-2025-12-06 00:10:14.486 +03:30 [INF] Application is shutting down...
-2025-12-06 00:10:21.747 +03:30 [INF] Now listening on: https://localhost:13051
-2025-12-06 00:10:21.774 +03:30 [INF] Now listening on: http://localhost:13053
-2025-12-06 00:10:21.778 +03:30 [INF] Application started. Press Ctrl+C to shut down.
-2025-12-06 00:10:21.779 +03:30 [INF] Hosting environment: Development
-2025-12-06 00:10:21.780 +03:30 [INF] Content root path: D:\Programming\Face\face-platform\src\dotnet\backend\Face.Api
-2025-12-06 00:15:20.218 +03:30 [INF] Application is shutting down...
-2025-12-06 00:15:50.970 +03:30 [INF] Now listening on: https://localhost:13051
-2025-12-06 00:15:51.018 +03:30 [INF] Now listening on: http://localhost:13053
-2025-12-06 00:15:51.066 +03:30 [INF] Application started. Press Ctrl+C to shut down.
-2025-12-06 00:15:51.067 +03:30 [INF] Hosting environment: Development
-2025-12-06 00:15:51.069 +03:30 [INF] Content root path: D:\Programming\Face\face-platform\src\dotnet\backend\Face.Api
-2025-12-06 00:15:54.118 +03:30 [INF] HTTP GET / responded 404 in 1451.8992 ms
-2025-12-06 00:17:54.840 +03:30 [INF] HTTP GET /api/v1/diagnostics/rabbitmq/status responded 401 in 27.1393 ms
+2025-12-06 02:46:58.086 +03:30 [INF] Now listening on: https://localhost:13051
+2025-12-06 02:46:58.116 +03:30 [INF] Now listening on: http://localhost:13053
+2025-12-06 02:46:58.119 +03:30 [INF] Application started. Press Ctrl+C to shut down.
+2025-12-06 02:46:58.120 +03:30 [INF] Hosting environment: Development
+2025-12-06 02:46:58.121 +03:30 [INF] Content root path: D:\Programming\Face\face-platform\src\dotnet\backend\Face.Api
+2025-12-06 03:01:00.609 +03:30 [INF] HTTP GET /_framework/aspnetcore-browser-refresh.js responded 307 in 1.2609 ms
+2025-12-06 03:01:00.761 +03:30 [INF] HTTP GET /_framework/aspnetcore-browser-refresh.js responded 404 in 107.4179 ms
