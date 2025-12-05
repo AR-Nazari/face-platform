@@ -1,4 +1,3 @@
-
 using System;
 using System.Linq;
 using System.Security.Cryptography;
@@ -6,7 +5,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Face.Application.Common.Interfaces;
-using Face.Domain.Users;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,9 +15,7 @@ namespace Face.Application.Auth.Login
         private readonly IApplicationDbContext _dbContext;
         private readonly IJwtTokenGenerator _jwtTokenGenerator;
 
-        public LoginCommandHandler(
-            IApplicationDbContext dbContext,
-            IJwtTokenGenerator jwtTokenGenerator)
+        public LoginCommandHandler(IApplicationDbContext dbContext, IJwtTokenGenerator jwtTokenGenerator)
         {
             _dbContext = dbContext;
             _jwtTokenGenerator = jwtTokenGenerator;
@@ -33,29 +29,33 @@ namespace Face.Application.Auth.Login
             }
 
             var normalizedUserName = request.UserName.Trim();
+            var passwordHash = HashPassword(request.Password);
 
             var user = await _dbContext.Users
-                .Where(u => u.UserName == normalizedUserName)
-                .FirstOrDefaultAsync(cancellationToken);
+                .Where(u => u.UserName == normalizedUserName && u.PasswordHash == passwordHash)
+                .SingleOrDefaultAsync(cancellationToken);
 
-            if (user is null)
+            if (user == null)
             {
                 throw new UnauthorizedAccessException("Invalid username or password.");
             }
 
-            var passwordHash = HashPassword(request.Password);
-            if (!string.Equals(user.PasswordHash, passwordHash, StringComparison.Ordinal))
-            {
-                throw new UnauthorizedAccessException("Invalid username or password.");
-            }
+            var preferredLanguage = string.IsNullOrWhiteSpace(user.PreferredLanguage)
+                ? "fa-IR"
+                : user.PreferredLanguage;
 
-            var token = _jwtTokenGenerator.GenerateToken(user.Id, user.UserName, user.Role);
+            var token = _jwtTokenGenerator.GenerateToken(
+                user.Id,
+                user.UserName,
+                user.Role,
+                preferredLanguage);
 
             return new LoginResultDto
             {
                 Token = token,
                 UserName = user.UserName,
-                Role = user.Role
+                Role = user.Role,
+                PreferredLanguage = preferredLanguage
             };
         }
 

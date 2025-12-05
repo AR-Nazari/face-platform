@@ -1,0 +1,225 @@
+@{
+    ViewData["Title"] = "وضعیت صف‌ها و درخواست‌ها";
+}
+
+<div>
+    <div class="page-title-fa">وضعیت صف‌ها و درخواست‌ها</div>
+    <div class="page-title-en">RabbitMQ Queues &amp; Connections Status</div>
+</div>
+
+<hr class="border-secondary" />
+
+<div id="rabbitmq-tabs">
+    <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+        <div class="btn-group" role="group" aria-label="RabbitMQ tabs">
+            <button type="button" class="btn btn-sm btn-outline-light active tab-btn" data-tab="status">
+                وضعیت کلی / Status
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-light tab-btn" data-tab="queues">
+                صف‌ها / Queues
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-light tab-btn" data-tab="connections">
+                اتصال‌ها / Connections
+            </button>
+        </div>
+
+        <div class="ms-auto d-flex align-items-center gap-2">
+            <button type="button" id="refreshNowBtn" class="btn btn-sm btn-outline-secondary">
+                رفرش دستی / Refresh
+            </button>
+            <span class="text-secondary" style="font-size:.75rem;">
+                به‌روزرسانی خودکار هر ۶۰ ثانیه
+            </span>
+        </div>
+    </div>
+
+    <!-- Status -->
+    <div id="tab-status" class="tab-panel">
+        <h3 class="h6">وضعیت کلی ربیت / RabbitMQ Overall Status</h3>
+        <pre id="statusOutput" class="bg-dark border border-secondary rounded p-2 text-light" style="font-size:.8rem; max-height: 350px; overflow:auto;"></pre>
+    </div>
+
+    <!-- Queues -->
+    <div id="tab-queues" class="tab-panel d-none">
+        <h3 class="h6">صف‌ها / Queues</h3>
+        <div class="table-responsive">
+            <table id="queuesTable" class="table table-sm table-dark align-middle">
+                <thead>
+                    <tr>
+                        <th>نام صف (FA/EN)</th>
+                        <th class="text-center">پیام‌های آماده / Ready</th>
+                        <th class="text-center">پیام‌های در حال پردازش / Unacked</th>
+                        <th class="text-center">کل پیام‌ها / Total</th>
+                        <th class="text-center">مصرف‌کننده‌ها / Consumers</th>
+                    </tr>
+                </thead>
+                <tbody id="queuesBody">
+                    <tr>
+                        <td colspan="5" class="text-center text-secondary">در حال بارگذاری...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Connections -->
+    <div id="tab-connections" class="tab-panel d-none">
+        <h3 class="h6">اتصال‌ها / Connections</h3>
+        <div class="table-responsive">
+            <table id="connectionsTable" class="table table-sm table-dark align-middle">
+                <thead>
+                    <tr>
+                        <th>نام / Name</th>
+                        <th>هاست / Host</th>
+                        <th class="text-center">وضعیت / State</th>
+                        <th class="text-center">کانال‌ها / Channels</th>
+                    </tr>
+                </thead>
+                <tbody id="connectionsBody">
+                    <tr>
+                        <td colspan="4" class="text-center text-secondary">در حال بارگذاری...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    (function () {
+        // TODO: آدرس پایه را در فایل تنظیمات جاوااسکریپت/ENV بگذارید
+        const apiBase = "https://localhost:13051/api/v1/diagnostics/rabbitmq";
+
+        // TODO: این توکن را بعداً از فرآیند لاگین/LocalStorage بخوانید
+        const token = localStorage.getItem("face_platform_jwt") || "";
+
+        function getHeaders() {
+            const headers = { "Accept": "application/json" };
+            if (token) {
+                headers["Authorization"] = "Bearer " + token;
+            }
+            return headers;
+        }
+
+        async function loadStatus() {
+            const el = document.getElementById("statusOutput");
+            try {
+                const resp = await fetch(apiBase + "/status", { headers: getHeaders() });
+                const data = await resp.json();
+                el.textContent = JSON.stringify(data, null, 2);
+            } catch (e) {
+                el.textContent = "خطا در دریافت وضعیت کلی / Error: " + e;
+            }
+        }
+
+        async function loadQueues() {
+            const body = document.getElementById("queuesBody");
+            try {
+                const resp = await fetch(apiBase + "/queues", { headers: getHeaders() });
+                const data = await resp.json();
+
+                if (!Array.isArray(data)) {
+                    body.innerHTML = "<tr><td colspan='5' class='text-center text-danger'>فرمت پاسخ نامعتبر است.</td></tr>";
+                    return;
+                }
+
+                body.innerHTML = "";
+                data.forEach(q => {
+                    const tr = document.createElement("tr");
+                    tr.innerHTML = `
+                        <td>
+                            ${q.displayNameFa || q.name || "-"}
+                            <div style="font-size:.7rem; color:#9ca3af;">
+                                ${q.displayNameEn || q.name || ""}
+                            </div>
+                        </td>
+                        <td class="text-center">${q.messagesReady ?? "-"}</td>
+                        <td class="text-center">${q.messagesUnacked ?? "-"}</td>
+                        <td class="text-center">${q.messages ?? "-"}</td>
+                        <td class="text-center">${q.consumers ?? "-"}</td>
+                    `;
+                    body.appendChild(tr);
+                });
+
+                if (data.length === 0) {
+                    body.innerHTML = "<tr><td colspan='5' class='text-center text-secondary'>هیچ صف فعالی یافت نشد.</td></tr>";
+                }
+
+            } catch (e) {
+                body.innerHTML = "<tr><td colspan='5' class='text-center text-danger'>خطا در دریافت صف‌ها / Error: " + e + "</td></tr>";
+            }
+        }
+
+        async function loadConnections() {
+            const body = document.getElementById("connectionsBody");
+            try {
+                const resp = await fetch(apiBase + "/connections", { headers: getHeaders() });
+                const data = await resp.json();
+
+                if (!Array.isArray(data)) {
+                    body.innerHTML = "<tr><td colspan='4' class='text-center text-danger'>فرمت پاسخ نامعتبر است.</td></tr>";
+                    return;
+                }
+
+                body.innerHTML = "";
+                data.forEach(c => {
+                    const tr = document.createElement("tr");
+                    tr.innerHTML = `
+                        <td>${c.name || "-"}</td>
+                        <td>${c.host || "-"}</td>
+                        <td class="text-center">${c.state || "-"}</td>
+                        <td class="text-center">${c.channels ?? "-"}</td>
+                    `;
+                    body.appendChild(tr);
+                });
+
+                if (data.length === 0) {
+                    body.innerHTML = "<tr><td colspan='4' class='text-center text-secondary'>هیچ اتصالی یافت نشد.</td></tr>";
+                }
+
+            } catch (e) {
+                body.innerHTML = "<tr><td colspan='4' class='text-center text-danger'>خطا در دریافت اتصال‌ها / Error: " + e + "</td></tr>";
+            }
+        }
+
+        function initTabs() {
+            const tabs = document.querySelectorAll(".tab-btn");
+            const panels = {
+                status: document.getElementById("tab-status"),
+                queues: document.getElementById("tab-queues"),
+                connections: document.getElementById("tab-connections")
+            };
+
+            tabs.forEach(btn => {
+                btn.addEventListener("click", () => {
+                    tabs.forEach(b => b.classList.remove("active"));
+                    btn.classList.add("active");
+
+                    const target = btn.getAttribute("data-tab");
+                    Object.keys(panels).forEach(key => {
+                        panels[key].classList.toggle("d-none", key !== target);
+                    });
+                });
+            });
+        }
+
+        async function refreshAll() {
+            await Promise.all([
+                loadStatus(),
+                loadQueues(),
+                loadConnections()
+            ]);
+        }
+
+        // Init
+        initTabs();
+        refreshAll();
+
+        // Auto refresh each 60s
+        setInterval(refreshAll, 60000);
+
+        document.getElementById("refreshNowBtn")?.addEventListener("click", refreshAll);
+    })();
+</script>
+}
