@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\backend\Face.Contracts\Face.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\backend\Face.Application\Face.Application.csproj" />
   </ItemGroup>
 
 </Project>

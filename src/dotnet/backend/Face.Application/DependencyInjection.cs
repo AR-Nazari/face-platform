@@ -9,11 +9,10 @@ namespace Face.Application
     {
         public static IServiceCollection AddApplication(this IServiceCollection services)
         {
-            services.AddMediatR(cfg =>
-            {
-                cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
-            });
+            // MediatR v11 registration: scan handlers from this assembly
+            services.AddMediatR(Assembly.GetExecutingAssembly());
 
+            // AutoMapper profiles from this assembly
             services.AddAutoMapper(Assembly.GetExecutingAssembly());
 
             return services;

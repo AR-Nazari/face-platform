@@ -21,7 +21,7 @@ namespace Face.Contracts.Tests
         public int NewHeight { get; set; }
 
         /// <summary>
-        /// نسخه نهایی تصویر (jpg, max 1920x1080) به صورت Base64.
+        /// تصویر خروجی نرمال‌شده به صورت Base64 (jpg).
         /// </summary>
         public string? OutputImageBase64 { get; set; }
 
@@ -33,6 +33,9 @@ namespace Face.Contracts.Tests
 
     public class FaceDetectTestRequest
     {
+        /// <summary>
+        /// تصویر ورودی به صورت Base64. اگر خالی باشد، از تصویر پیش‌فرض استفاده می‌شود.
+        /// </summary>
         public string? ImageBase64 { get; set; }
     }
 
@@ -41,6 +44,9 @@ namespace Face.Contracts.Tests
         public bool Success { get; set; }
         public string Message { get; set; } = string.Empty;
 
+        /// <summary>
+        /// تعداد چهره‌های شناسایی‌شده.
+        /// </summary>
         public int FacesCount { get; set; }
 
         /// <summary>

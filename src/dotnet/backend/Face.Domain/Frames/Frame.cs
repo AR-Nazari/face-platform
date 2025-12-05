@@ -5,7 +5,7 @@ namespace Face.Domain.Frames
 {
     public class Frame : BaseEntity
     {
-        public FrameId FrameId { get; private set; }
+        public FrameId FrameId { get; private set; } = default!;
         public DateTime TimestampUtc { get; private set; }
         public string Source { get; private set; } = "camera";
 
