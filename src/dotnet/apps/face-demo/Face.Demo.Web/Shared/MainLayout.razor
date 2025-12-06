@@ -1,24 +1,135 @@
 @inherits LayoutComponentBase
 
-<MudThemeProvider>
-    <MudDialogProvider />
-    <MudSnackbarProvider>
+<div class="app-layout">
+    <!-- Header -->
+    <header class="app-header">
+        <div class="logo-container">
+            <svg class="logo-svg" viewBox="0 0 64 64">
+                <defs>
+                    <linearGradient id="faceGradient" x1="0" x2="1" y1="0" y2="1">
+                        <stop offset="0%" stop-color="#3b82f6" />
+                        <stop offset="100%" stop-color="#22d3ee" />
+                    </linearGradient>
+                </defs>
+                <rect x="6" y="6" width="52" height="52" rx="12"
+                      stroke="url(#faceGradient)" stroke-width="2" fill="none" />
+                <circle cx="32" cy="26" r="9"
+                        stroke="url(#faceGradient)" stroke-width="2" fill="none" />
+                <path d="M20 44 C 26 38, 38 38, 44 44"
+                      stroke="url(#faceGradient)" stroke-width="2" fill="none" />
+                <circle cx="47" cy="17" r="3" fill="#22d3ee" />
+            </svg>
 
-        <MudLayout>
-            <MudAppBar Elevation="4">
-                <MudText Typo="Typo.h6">Face Platform Demo</MudText>
-            </MudAppBar>
+            <div class="d-flex flex-column">
+                <span class="logo-text-fa">سکوی تشخیص چهره</span>
+                <span class="logo-text-en">Face Recognition Platform</span>
+            </div>
+        </div>
 
-            <MudDrawer Open="true" ClipMode="DrawerClipMode.Always" Elevation="1">
-                <NavMenu />
-            </MudDrawer>
+        <div class="header-right">
+            <div id="currentLangDisplay">FA / فارسی</div>
+            <button type="button" id="langToggleBtn" class="lang-toggle-btn">
+                <span>FA</span> | EN
+            </button>
+            <div>محیط: Development</div>
+        </div>
+    </header>
 
-            <MudMainContent>
-                <MudContainer MaxWidth="MaxWidth.False" Class="pa-4">
-                    @Body
-                </MudContainer>
-            </MudMainContent>
-        </MudLayout>
+    <!-- Sidebar -->
+    <aside class="app-sidebar">
+        <div class="menu-section mb-3">
+            <div class="menu-section-title">
+                دسترسی‌های پشتیبانی
+            </div>
+            <div class="menu-section-subtitle">
+                Support Access
+            </div>
+            <ul class="menu-list">
+                <li class="menu-item">
+                    <NavLink class="nav-link" href="/support/rabbit">
+                        وضعیت صف‌ها و درخواست‌ها
+                        <span style="font-size:.7rem; color:#cbd5f5;">/ Queues &amp; Requests</span>
+                    </NavLink>
+                </li>
+            </ul>
+        </div>
 
-    </MudSnackbarProvider>
-</MudThemeProvider>
+        <div class="menu-section mb-3">
+            <div class="menu-section-title">
+                دسترسی‌های مدیر سیستم
+            </div>
+            <div class="menu-section-subtitle">
+                System Admin Access
+            </div>
+            <ul class="menu-list">
+                <li class="menu-item">
+                    <NavLink class="nav-link" href="/admin/users">
+                        مدیریت کاربران
+                        <span style="font-size:.7rem; color:#cbd5f5;">/ User Management</span>
+                    </NavLink>
+                </li>
+                <li class="menu-item">
+                    <NavLink class="nav-link" href="/admin/roles">
+                        مدیریت نقش کاربران
+                        <span style="font-size:.7rem; color:#cbd5f5;">/ Role Management</span>
+                    </NavLink>
+                </li>
+            </ul>
+        </div>
+
+        <div class="menu-section mb-3">
+            <div class="menu-section-title">
+                دسترسی‌های مدیران کسب‌وکار
+            </div>
+            <div class="menu-section-subtitle">
+                Business Managers Access
+            </div>
+            <ul class="menu-list">
+                <li class="menu-item">
+                    <NavLink class="nav-link" href="/business/manager-dashboard">
+                        داشبورد مدیران
+                        <span style="font-size:.7rem; color:#cbd5f5;">/ Manager Dashboard</span>
+                    </NavLink>
+                </li>
+            </ul>
+        </div>
+
+        <div class="menu-section mb-3">
+            <div class="menu-section-title">
+                دسترسی‌های کاربران کسب‌وکار
+            </div>
+            <div class="menu-section-subtitle">
+                Business Users Access
+            </div>
+            <ul class="menu-list">
+                <li class="menu-item">
+                    <NavLink class="nav-link" href="/business/user-dashboard">
+                        داشبورد کاربران
+                        <span style="font-size:.7rem; color:#cbd5f5;">/ User Dashboard</span>
+                    </NavLink>
+                </li>
+            </ul>
+        </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="app-main">
+        @Body
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+        <div>
+            © @DateTime.Now.Year - سکوی تشخیص چهره
+        </div>
+        <div class="footer-email">
+            تماس:
+            <a href="mailto:ali.reza.nazari@gmail.com" rel="nofollow noopener noreferrer">
+                ali.reza.nazari [at] gmail.com
+            </a>
+        </div>
+    </footer>
+</div>
+
+@code {
+}

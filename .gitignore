@@ -28,8 +28,10 @@ desktop.ini
 # .NET build
 #############
 log/
-logs/
-Logs/
+[Ll]ogs/*
+log-*.txt
+src\dotnet\backend\Face.Api\Logs\
+src/dotnet/backend/Face.Api/Logs/
 bin/
 obj/
 Debug/
